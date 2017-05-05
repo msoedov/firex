@@ -1,15 +1,24 @@
 defmodule Firex.Main do
-  @names []
+  @agent __MODULE__
 
-  def on_def(_env, kind, name, args, guards, body) do
-    # @names [name|@names]
+  def start_link do
+    {:ok, _pid} = Agent.start_link(fn -> [] end, name: @agent)
+  end
 
-    IO.puts "Defining #{kind} named #{name} with args:"
-    IO.inspect args
-    IO.puts "and guards"
-    IO.inspect guards
-    IO.puts "and body"
-    IO.puts Macro.to_string(body)
+  def definitions do
+    IO.puts @agent
+    Agent.get(@agent, fn state -> state end)
+  end
+
+  def on_def(_env, _kind, name, args, guards, _body) do
+    :ok = Agent.update(@agent, fn defs -> [{name, args, guards} | defs] end)
+    IO.inspect  Firex.Main.definitions
+    # IO.puts "Defining #{kind} named #{name} with args:"
+    # IO.inspect args
+    # IO.puts "and guards"
+    # IO.inspect guards
+    # IO.puts "and body"
+    # IO.puts Macro.to_string(body)
   end
 end
 
@@ -19,9 +28,12 @@ defmodule Firex do
     defmacro __using__(_opts) do
       quote do
         import Firex
+        Firex.Main.start_link
+
         @on_definition {Firex.Main, :on_def}
 
         def what_defined do
+            Firex.Main.definitions
         end
 
       end
