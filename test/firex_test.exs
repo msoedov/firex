@@ -4,7 +4,7 @@ defmodule FirexTest do
 
   test "the truth" do
     IO.inspect Firex.Cli.what_defined
-    # IO.inspect unquote Macro.escape(Firex)
-    assert 1 + 1 == 2
+    refute Firex.Cli.what_defined == nil
+    refute Firex.Cli.what_defined == []
   end
 end

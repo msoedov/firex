@@ -14,7 +14,9 @@ defmodule Firex.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger],
+    #  mod: {Firex, []}
+    ]
   end
 
   # Dependencies can be Hex packages:
