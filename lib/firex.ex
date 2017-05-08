@@ -1,5 +1,10 @@
 defmodule Firex do
 
+  @moduledoc """
+  Module with macro for generating `main` entrypoint and reflection of passed
+  command line argument into functions.
+  """
+
   defmacro __using__(_opts) do
     quote do
       import Firex
