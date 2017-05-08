@@ -6,23 +6,38 @@ defmodule Firex do
 
       @before_compile Firex
       @on_definition {Firex, :on_def}
-      IO.inspect __ENV__.module
 
-      defmodule Main do
-        defdelegate main(args), to: __ENV__.module
+      def main(args \\ []) do
+        commands =  what_defined |> Enum.map(&opt_pair/1)
+        commands_map = Enum.reduce(commands, %{}, fn (map, acc) -> Map.merge(acc, map) end)
+        {_, matched} = Enum.reduce(commands, {args, false}, &traverse_commands/2)
+        matched
       end
 
-      def main(args) do
-        params =  what_defined |> Enum.map(&opt_pair/1)
-        parsed = OptionParser.parse(args, List.first(params))
-        # IO.inspect parsed
+      defp traverse_commands(pair, {args, false}) do
+        name = Map.keys(pair) |> Enum.at(0)
+        cmd = Map.values(pair) |> Enum.at(0)
+        parsed = OptionParser.parse(args, cmd)
+        cmd_name = Atom.to_string(name)
         case parsed do
-          {[verbose: true], [cmd], _} -> :do_verbose_thing
-          {_, [cmd], _} -> :do_thing
-          _ -> :help
+          {opts, [^cmd_name], _} ->
+            fn_args = opts |> Enum.map(fn {k, v} -> v end)
+            Kernel.apply(__MODULE__, name, fn_args)
+            {args, true}
+          {_, [_], _} ->
+            {args, false}
         end
+
+      end
+      defp traverse_commands(_, {args, true}) do
+        {args, true}
       end
 
+      defp help do
+        IO.puts """
+        Help message here:
+        """
+      end
     end
   end
 
@@ -36,6 +51,8 @@ defmodule Firex do
 
   def on_def(_env, _kind, :dispatch, _args, _guards, _body) do
   end
+  def on_def(_env, _kind, :main, _args, _guards, _body) do
+  end
   def on_def(env, :def, name, args, guards, _body) do
     module = env.module
     defs = Module.get_attribute(module, :commands) || []
@@ -44,7 +61,7 @@ defmodule Firex do
   def on_def(_env, _kind, _name, _args, _guards, _body) do
   end
 
-  def opt_pair({_name, args, _guards}) do
+  def opt_pair({name, args, _guards}) do
     switches = args
     |> Enum.map(&Firex.arg_name/1)
     |> Enum.map(fn name -> {name, :string} end)
@@ -54,10 +71,10 @@ defmodule Firex do
     |> String.at(0)
     |> String.to_atom(), k} end)
     |> Enum.into(Keyword.new)
-    [switches: switches, aliases: aliases]
+    %{name => [switches: switches, aliases: aliases]}
   end
   def opt_pair(_) do
-    []
+    %{}
   end
 
   def arg_name({:\\, _line, [{name, _, nil}, _default]}) do
@@ -67,19 +84,6 @@ defmodule Firex do
     name
   end
 
-  def main(args \\ []) do
-    # require Firex.Main
-    # Firex.Main.main(args)
+  def main(_args \\ []) do
   end
-end
-
-
-defmodule Firex.Cli do
-  use Firex
-
-  @spec launch(String.t, Bool.t) :: String.t
-  def launch(message, path, force \\ false) when is_binary(message) do
-    IO.puts "Hallo #{message} and #{path}"
-  end
-
 end
