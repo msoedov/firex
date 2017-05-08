@@ -6,9 +6,14 @@ defmodule Firex do
 
         @before_compile Firex
         @on_definition {Firex, :on_def}
+        IO.inspect __ENV__.module
+
+        defmodule Main do
+            defdelegate main(args), to: __ENV__.module
+        end
 
         def main(args) do
-            params =  what_defined |> Enum.map(&Firex.opt_pair/1)
+            params =  what_defined |> Enum.map(&opt_pair/1)
             parsed = OptionParser.parse(args, List.first(params))
             IO.inspect parsed
             case parsed do
@@ -60,6 +65,11 @@ defmodule Firex do
     end
     def arg_name({name, _line, _}) do
       name
+    end
+
+    def main(args \\ []) do
+        # require Firex.Main
+        # Firex.Main.main(args)
     end
 end
 
