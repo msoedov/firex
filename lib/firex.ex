@@ -7,7 +7,7 @@ defmodule Firex do
         @before_compile Firex
         @on_definition {Firex, :on_def}
 
-        def dispatch(args) do
+        def main(args) do
             params =  what_defined |> Enum.map(&Firex.opt_pair/1)
             parsed = OptionParser.parse(args, List.first(params))
             IO.inspect parsed
@@ -67,8 +67,8 @@ end
 defmodule Firex.Cli do
     use Firex
 
-    @spec main(String.t, Bool.t) :: String.t
-    def main(message, path, force \\ false) when is_binary(message) do
+    @spec launch(String.t, Bool.t) :: String.t
+    def launch(message, path, force \\ false) when is_binary(message) do
         IO.puts "Hallo #{message} and #{path}"
     end
 

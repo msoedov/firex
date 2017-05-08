@@ -8,6 +8,6 @@ defmodule FirexTest do
   end
 
   test "dispatch" do
-    assert Firex.Cli.dispatch(["main", "-m", "hallo", "--path", ".", "-w", "1"])
+    assert Firex.Cli.main(["main", "-m", "hallo", "--path", ".", "-w", "1"])
   end
 end

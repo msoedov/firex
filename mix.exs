@@ -7,6 +7,7 @@ defmodule Firex.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     escript: [main_module: Firex.Cli],
      deps: deps()]
   end
 
@@ -15,7 +16,6 @@ defmodule Firex.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger],
-    #  mod: {Firex, []}
     ]
   end
 
@@ -31,7 +31,7 @@ defmodule Firex.Mixfile do
   defp deps do
     [
      {:blacksmith, "~> 0.1"},
-     {:dogma, only: ~w(test dev)a},
+     {:credo, only: ~w(test dev)a},
      {:mix_test_watch, "~> 0.2.5", only: ~w(dev test)a},
     ]
   end
