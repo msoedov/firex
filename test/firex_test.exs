@@ -50,6 +50,10 @@ defmodule FirexTest do
     assert Firex.Simple.main(["launch", "-m", "hallo", "--path", ".", "-w", "1"])
   end
 
+  test "it reject invalid params" do
+    refute Firex.Simple.main(["launch", "--what", "broken"])
+  end
+
   test "it should be to call any function from exposed module" do
     assert Firex.Simple.main(["stop", "-t", "Omg"])
   end
