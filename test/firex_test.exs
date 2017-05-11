@@ -3,6 +3,10 @@ defmodule Firex.Simple do
   @moduledoc """
   This a sample of cmd app module where we only define function with signatures
   """
+
+  @doc """
+  Launch some thing
+  """
   @spec launch(String.t, String.t, Bool.t) :: String.t
   def launch(message, path, _force \\ false) when is_binary(message) do
     IO.puts "Hallo #{message} at `#{path}`"

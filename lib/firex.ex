@@ -46,9 +46,22 @@ defmodule Firex do
       end
 
       defp help(cm) do
-        IO.inspect cm
+        msg = cm |> Enum.map(&desription/1) |> Enum.join("\n")
         IO.puts """
-        Help message here:
+        Commands:
+
+        #{msg}
+        """
+      end
+
+      defp desription({name, params}) do
+        signature = params
+        |> Keyword.get(:aliases, [])
+        |> Enum.map(fn {k, v} -> "-#{k} --#{v} <#{v}>"  end)
+        |> Enum.join("  ")
+
+        """
+        #{name}: #{signature}
         """
       end
     end
