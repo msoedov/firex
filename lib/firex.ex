@@ -61,8 +61,9 @@ defmodule Firex do
               #{doc}
           """
         end) |> Enum.join("\n")
-        IO.puts """
 
+        IO.puts """
+        #{pub_moduledoc}
         Usage:
 
             <command>
@@ -79,6 +80,9 @@ defmodule Firex do
     quote do
       def what_defined do
         @commands
+      end
+      def pub_moduledoc do
+        @pub_moduledoc
       end
     end
   end
@@ -97,6 +101,12 @@ defmodule Firex do
     end
     fn_def = {name, args, doc, Module.get_attribute(module, :spec)}
     Module.put_attribute(module, :commands, [fn_def | defs])
+
+    moduledoc = case Module.get_attribute(module, :moduledoc) do
+      nil -> ""
+      {_line, moduledoc} -> moduledoc
+    end
+    Module.put_attribute(module, :pub_moduledoc, moduledoc)
   end
   def on_def(_env, _kind, _name, _args, _guards, _body) do
   end
