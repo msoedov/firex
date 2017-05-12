@@ -12,13 +12,27 @@ defmodule Firex do
       @before_compile Firex
       @on_definition {Firex, :on_def}
 
-      def main(args \\ []) do
+      def main([]) do
+        state = init([])
+        %{help_fn: help_fn} = state
+        help_fn.()
+        false
+      end
+      def main(args) do
+        state = init(args)
         commands =  what_defined |> Enum.map(&opt_pair/1)
-        commands_map = Enum.reduce(commands, %{}, fn (map, acc) -> Map.merge(acc, map) end)
-        help_info = what_defined |>  Enum.map(fn {name, _, doc, tspec} -> {name, {doc, tspec}} end) |> Enum.into(%{})
-        state = %{args: args, exausted: false, help_fn: fn -> help(commands_map, help_info) end}
         %{exausted: exausted} = Enum.reduce(commands, state, &traverse_commands/2)
         exausted
+      end
+
+      defp init(args \\ []) do
+        commands =  what_defined |> Enum.map(&opt_pair/1)
+        commands_map = Enum.reduce(commands, %{}, fn (map, acc) -> Map.merge(acc, map) end)
+        help_info =
+          what_defined
+          |> Enum.map(fn {name, _, doc, tspec} -> {name, {doc, tspec}} end)
+          |> Enum.into(%{})
+        %{args: args, exausted: false, help_fn: fn -> help(commands_map, help_info) end}
       end
 
       defp traverse_commands(pair, %{args: args, exausted: false, help_fn: help_fn} = state) do

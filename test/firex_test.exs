@@ -54,6 +54,10 @@ defmodule FirexTest do
     assert Firex.Simple.main(["launch", "-m", "hallo", "--path", ".", "-w", "1"])
   end
 
+  test "it should reject empty params" do
+    assert Firex.Simple.main([])
+  end
+
   test "it reject invalid params" do
     refute Firex.Simple.main(["launch", "--what", "broken"])
     refute Firex.MatchSample.main(["launch", "--what", "broken"])
