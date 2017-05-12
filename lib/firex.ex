@@ -15,7 +15,8 @@ defmodule Firex do
       def main(args \\ []) do
         commands =  what_defined |> Enum.map(&opt_pair/1)
         commands_map = Enum.reduce(commands, %{}, fn (map, acc) -> Map.merge(acc, map) end)
-        state = %{args: args, exausted: false, help_fn: fn -> help(commands_map) end}
+        help_info = what_defined |>  Enum.map(fn {name, _, doc, tspec} -> {name, {doc, tspec}} end) |> Enum.into(%{})
+        state = %{args: args, exausted: false, help_fn: fn -> help(commands_map, help_info) end}
         %{exausted: exausted} = Enum.reduce(commands, state, &traverse_commands/2)
         exausted
       end
@@ -45,23 +46,30 @@ defmodule Firex do
         state
       end
 
-      defp help(cm) do
-        msg = cm |> Enum.map(&desription/1) |> Enum.join("\n")
+      defp help(cm, help_info) do
+        msg = cm |> Enum.map(fn {name, params} ->
+          signature = params
+          |> Keyword.get(:aliases, [])
+          |> Enum.map(fn {k, v} -> "-#{k} --#{v} <#{v}>"  end)
+          |> Enum.join(", ")
+
+          meta = Map.get(help_info, name, {nil, nil})
+          {doc, _} = meta
+          """
+          #{name}: #{signature}
+
+              #{doc}
+          """
+        end) |> Enum.join("\n")
         IO.puts """
-        Commands:
 
-        #{msg}
-        """
-      end
+        Usage:
 
-      defp desription({name, params}) do
-        signature = params
-        |> Keyword.get(:aliases, [])
-        |> Enum.map(fn {k, v} -> "-#{k} --#{v} <#{v}>"  end)
-        |> Enum.join("  ")
+            <command>
 
-        """
-        #{name}: #{signature}
+        Available commands
+
+          #{msg}
         """
       end
     end
@@ -80,15 +88,20 @@ defmodule Firex do
   end
   def on_def(_env, _kind, :main, _args, _guards, _body) do
   end
-  def on_def(env, :def, name, args, guards, _body) do
+  def on_def(env, :def, name, args, _guards, _body) do
     module = env.module
     defs = Module.get_attribute(module, :commands) || []
-    Module.put_attribute(module, :commands, [{name, args, guards} | defs])
+    doc = case Module.get_attribute(module, :doc) do
+      nil -> ""
+      {_, doc} -> doc
+    end
+    fn_def = {name, args, doc, Module.get_attribute(module, :spec)}
+    Module.put_attribute(module, :commands, [fn_def | defs])
   end
   def on_def(_env, _kind, _name, _args, _guards, _body) do
   end
 
-  def opt_pair({name, args, _guards}) do
+  def opt_pair({name, args, _, __}) do
     switches = args
     |> Enum.map(&Firex.arg_name/1)
     |> Enum.map(fn name -> {name, :string} end)
