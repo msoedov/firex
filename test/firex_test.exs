@@ -56,6 +56,7 @@ defmodule FirexTest do
 
   test "it reject invalid params" do
     refute Firex.Simple.main(["launch", "--what", "broken"])
+    refute Firex.MatchSample.main(["launch", "--what", "broken"])
   end
 
   test "it should be to call any function from exposed module" do

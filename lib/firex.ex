@@ -68,7 +68,7 @@ defmodule Firex do
 
             <command>
 
-        Available commands
+        Available commands:
 
           #{msg}
         """
