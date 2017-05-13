@@ -1,5 +1,6 @@
 defmodule Firex.Simple do
-  use Firex
+  use Firex, testing: true
+
   @moduledoc """
   This a sample of cmd app module where we only define function with signatures
   """
@@ -21,7 +22,7 @@ end
 
 
 defmodule Firex.MatchSample do
-  use Firex
+  use Firex, testing: true
   @moduledoc """
   Ensure pattern matching
   """
@@ -55,7 +56,7 @@ defmodule FirexTest do
   end
 
   test "it should reject empty params" do
-    assert Firex.Simple.main([])
+    refute Firex.Simple.main([])
   end
 
   test "it reject invalid params" do

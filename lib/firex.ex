@@ -5,7 +5,8 @@ defmodule Firex do
   command line argument into functions.
   """
 
-  defmacro __using__(_opts) do
+  defmacro __using__(opts) do
+    testing? = Keyword.get(opts, :testing, false)
     quote do
       import Firex
 
@@ -16,13 +17,21 @@ defmodule Firex do
         state = init([])
         %{help_fn: help_fn} = state
         help_fn.()
-        false
+        false |> sys_exit
       end
       def main(args) do
         state = init(args)
         commands =  what_defined |> Enum.map(&opt_pair/1)
         %{exausted: exausted} = Enum.reduce(commands, state, &traverse_commands/2)
-        exausted
+        exausted |> sys_exit
+      end
+
+      defp sys_exit(status) do
+        case {status, unquote(testing?)} do
+          {_, true} -> status
+          {true, false} -> System.halt(0)
+          {false, false} -> System.halt(1)
+        end
       end
 
       defp init(args \\ []) do
