@@ -30,7 +30,6 @@ end
 # Type "mix help deps" for more examples and options
 defp deps do
   [
-    {:blacksmith, "~> 0.1"},
     {:credo, only: ~w(test dev)a},
     {:mix_test_watch, "~> 0.2.5", only: ~w(dev test)a},
   ]
