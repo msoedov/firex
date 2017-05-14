@@ -58,7 +58,7 @@ and then
 
 ```shell
 ➜ mix escript.build
-Generated escript firex with MIX_ENV=dev
+Generated escript app with MIX_ENV=dev
 ➜ ./app
 Module for my awesome launcher
 
@@ -94,7 +94,7 @@ end
 
 Known issues and opportunity for improvements:
 
-- [ ] Convert ``@spec` into `OptionParser` flags
+- [ ] Convert `@spec` into `OptionParser` flags
   - Currently only `:string` is used
 - [ ] Proper exit codes
   - Proper exit code on traceback
