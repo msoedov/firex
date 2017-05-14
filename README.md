@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/msoedov/firex.svg?branch=master)](https://travis-ci.org/msoedov/firex)
 
-Firex is a library for automatically generating command line interfaces (CLIs) from elixir module
+Firex is a library for automatically generating command line interfaces (CLIs) from an elixir module
 
 
 ## Basic Usage
@@ -76,7 +76,7 @@ stop: -t --task_id <task_id>
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+If [available in Hex](https://hex.pm/packages/firex), the package can be installed as:
 
   1. Add `firex` to your list of dependencies in `mix.exs`:
 
