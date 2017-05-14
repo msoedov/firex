@@ -59,11 +59,14 @@ defmodule Firex do
               UndefinedFunctionError ->
                 help_fn.()
                 state
+              e in _ ->
+                %{message: msg} = e
+                [:red, "Error: #{msg}"] |> Bunt.puts
+                state
             end
           {_, [_], _} ->
             state
         end
-
       end
       defp traverse_commands(_, %{exausted: true} = state) do
         state

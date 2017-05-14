@@ -31,6 +31,7 @@ end
 defp deps do
   [
     {:credo, only: ~w(test dev)a},
+    {:bunt, "~> 0.1.0"},
     {:mix_test_watch, "~> 0.2.5", only: ~w(dev test)a},
   ]
 end

@@ -18,6 +18,11 @@ defmodule Firex.Simple do
     IO.puts "Task here #{task}"
   end
 
+  @spec error() :: String.t
+  def error() do
+    raise("Error here")
+  end
+
 end
 
 
@@ -53,6 +58,14 @@ defmodule FirexTest do
 
   test "it should accept raw params" do
     assert Firex.Simple.main(["launch", "-m", "hallo", "--path", ".", "-w", "1"])
+  end
+
+  test "it should accept unnamed params" do
+    assert Firex.Simple.main(["launch", "hallo", "."])
+  end
+
+  test "it should handle errors" do
+    refute Firex.Simple.main(["error"])
   end
 
   test "it should reject empty params" do
