@@ -15,4 +15,12 @@ defmodule Firex.Proto.Cli do
     IO.puts "Hallo #{message} at `#{path}` and forced #{force}"
   end
 
+  @doc """
+  Stop previous task by id
+  """
+  @spec stop(String.t) :: String.t
+  def stop(task_id) do
+    IO.puts "Stopping task #{task_id}"
+  end
+
 end
