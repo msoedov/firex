@@ -4,6 +4,10 @@
 
 Firex is a library for automatically generating command line interfaces (CLIs) from an elixir module
 
+- Inspired by [Python Fire](https://github.com/google/python-fire)
+- Built on top of `OptionParser` and `escript`
+- Enhance exploring existing code or turning other people's code into a CLI for evaluation.
+
 
 ## Basic Usage
 
@@ -78,7 +82,7 @@ stop: -t --task_id <task_id>
 
 If [available in Hex](https://hex.pm/packages/firex), the package can be installed as:
 
-  1. Add `firex` to your list of dependencies in `mix.exs`:
+Add `firex` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -86,10 +90,18 @@ def deps do
 end
 ```
 
-  2. Ensure `firex` is started before your application:
+## Todos
 
-```elixir
-def application do
-  [applications: [:firex]]
-end
-```
+Known issues and opportunity for improvements:
+
+- [ ] Convert ``@spec` into `OptionParser` flags
+  - Currently only `:string` is used
+- [ ] Proper exit codes
+  - Proper exit code on traceback
+- [ ] Warn when extra arguments passed
+- [ ] Autoregister main module - e.g `escript: [main_module: Example]``
+- [ ] Colour output
+
+## License
+
+Firex is [MIT Licensed](./LICENSE).
