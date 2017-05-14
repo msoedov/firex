@@ -36,7 +36,9 @@ defmodule Firex do
 
       defp init(args \\ []) do
         commands =  what_defined |> Enum.map(&opt_pair/1)
-        commands_map = Enum.reduce(commands, %{}, fn (map, acc) -> Map.merge(acc, map) end)
+        commands_map = commands
+          |> Enum.map(fn mp -> mp |> Enum.into(Keyword.new) end)
+          |> Enum.reduce(Keyword.new, fn (map, acc) -> Keyword.merge(map, acc) end)
         help_info =
           what_defined
           |> Enum.map(fn {name, _, doc, tspec} -> {name, {doc, tspec}} end)
@@ -52,10 +54,10 @@ defmodule Firex do
         case parsed do
           {opts, [^cmd_name], _} ->
             fn_args = opts |> Enum.map(fn {k, v} -> v end)
-            apply_fn(__MODULE__, name, fn_args, state)
+            invoke(__MODULE__, name, fn_args, state)
           {_, plain, []} when is_list(plain) ->
             [name|fn_args] = plain
-            apply_fn(__MODULE__, name |> String.to_atom, fn_args, state)
+            invoke(__MODULE__, name |> String.to_atom, fn_args, state)
           {_, [_], _} ->
             state
         end
@@ -64,7 +66,7 @@ defmodule Firex do
         state
       end
 
-      defp apply_fn(module, fun, fn_args, %{help_fn: help_fn} = state) when is_atom(fun) do
+      defp invoke(module, fun, fn_args, %{help_fn: help_fn} = state) when is_atom(fun) do
         try do
           Kernel.apply(module, fun, fn_args)
           %{state | exausted: true}
