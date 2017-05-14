@@ -34,6 +34,7 @@ if Mix.env == :dev do
   tasks: [
     "test",
     "credo",
+    "dogma"
   ]
 
 end

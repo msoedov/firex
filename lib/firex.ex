@@ -52,24 +52,31 @@ defmodule Firex do
         case parsed do
           {opts, [^cmd_name], _} ->
             fn_args = opts |> Enum.map(fn {k, v} -> v end)
-            try do
-              Kernel.apply(__MODULE__, name, fn_args)
-              %{state | exausted: true}
-            rescue
-              UndefinedFunctionError ->
-                help_fn.()
-                state
-              e in _ ->
-                %{message: msg} = e
-                [:red, "Error: #{msg}"] |> Bunt.puts
-                state
-            end
+            apply_fn(__MODULE__, name, fn_args, state)
+          {_, plain, []} when is_list(plain) ->
+            [name|fn_args] = plain
+            apply_fn(__MODULE__, name |> String.to_atom, fn_args, state)
           {_, [_], _} ->
             state
         end
       end
       defp traverse_commands(_, %{exausted: true} = state) do
         state
+      end
+
+      defp apply_fn(module, fun, fn_args, %{help_fn: help_fn} = state) when is_atom(fun) do
+        try do
+          Kernel.apply(module, fun, fn_args)
+          %{state | exausted: true}
+        rescue
+          UndefinedFunctionError ->
+            help_fn.()
+            state
+          e in _ ->
+            %{message: msg} = e
+            [:red, "Error: #{msg}"] |> Bunt.puts
+            state
+        end
       end
 
       defp help(cm, help_info) do
