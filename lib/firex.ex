@@ -91,9 +91,9 @@ defmodule Firex do
           meta = Map.get(help_info, name, {nil, nil})
           {doc, _} = meta
           """
-          #{name}: #{signature}
+              #{name}: #{signature}
 
-              #{doc}
+                  #{doc}
           """
         end) |> Enum.join("\n")
 
@@ -105,7 +105,7 @@ defmodule Firex do
 
         Available commands:
 
-          #{msg}
+        #{msg}
         """
       end
     end

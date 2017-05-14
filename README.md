@@ -68,14 +68,14 @@ Usage:
 
 Available commands:
 
-  launch: -m --message <message>, -p --path <path>, -f --force <force>
+    launch: -m --message <message>, -p --path <path>, -f --force <force>
 
-    Launch some awesome thing
+        Launch some awesome thing
 
 
-stop: -t --task_id <task_id>
+    stop: -t --task_id <task_id>
 
-    Stop previous task by id
+        Stop previous task by id
 ```
 
 ## Installation
