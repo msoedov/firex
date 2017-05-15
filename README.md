@@ -1,12 +1,14 @@
 # Firex
 
 [![Build Status](https://travis-ci.org/msoedov/firex.svg?branch=master)](https://travis-ci.org/msoedov/firex)
+[![Hex Version](https://img.shields.io/hexpm/v/firex.svg)](https://hex.pm/packages/firex)
 
 Firex is a library for automatically generating command line interfaces (CLIs) from an elixir module
 
 - Inspired by [Python Fire](https://github.com/google/python-fire)
 - Built on top of `OptionParser` and `escript`
 - Enhance exploring existing code or turning other people's code into a CLI for evaluation.
+- Outputs [escript]( http://erlang.org/doc/man/escript.html) script executable (binary data)
 
 
 ## Basic Usage
