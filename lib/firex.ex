@@ -21,7 +21,7 @@ defmodule Firex do
       end
       def main(args) do
         state = init(args)
-        commands =  what_defined |> Enum.map(&opt_pair/1)
+        commands =  what_defined |> Enum.map(&Firex.Options.params_for_option_parser/1)
         %{exausted: exausted} = Enum.reduce(commands, state, &traverse_commands/2)
         exausted |> sys_exit
       end
@@ -35,7 +35,7 @@ defmodule Firex do
       end
 
       defp init(args \\ []) do
-        commands =  what_defined |> Enum.map(&opt_pair/1)
+        commands =  what_defined |> Enum.map(&Firex.Options.params_for_option_parser/1)
         commands_map = commands
           |> Enum.map(fn mp -> mp |> Enum.into(Keyword.new) end)
           |> Enum.reduce(Keyword.new, fn (map, acc) -> Keyword.merge(map, acc) end)
@@ -151,57 +151,4 @@ defmodule Firex do
   def on_def(_env, _kind, _name, _args, _guards, _body) do
   end
 
-  def opt_pair({name, args, _, spec}) do
-    guessed_switches = args
-    |> Enum.map(&Firex.arg_name/1)
-    |> Enum.map(fn name -> {name, :string} end)
-    |> Enum.into(Keyword.new)
-
-    spec_switches = to_opt(spec)
-    switches = guessed_switches
-    |> Enum.zip(spec_switches)
-    |> Enum.map(fn {{name, _}, sw} -> {name, sw} end)
-    aliases = switches
-    |> Enum.map(fn {k, _} -> {
-      k
-      |> Atom.to_string()
-      |> String.at(0)
-      |> String.to_atom(), k
-      }
-    end)
-    |> Enum.into(Keyword.new)
-    spec |> to_opt()
-    %{name => [switches: switches, aliases: aliases]}
-  end
-  def opt_pair(_) do
-    %{}
-  end
-
-  def arg_name({:\\, _line, [{name, _, nil}, _default]}) do
-    name
-  end
-  def arg_name({name, _line, _}) do
-    name
-  end
-
-
-  """
-  The following switches types arguments:
-  :boolean - sets the value to true when given (see also the “Negation switches” section below)
-  :count - counts the number of times the switch is given
-  The following switches take one argument:
-
-  :integer - parses the value as an integer
-  :float - parses the value as a float
-  :string - parses the value as a string
-  """
-  defp to_opt([{:spec, {:::, _, [{_name, _line, types}|_]}, _}|_aliases]) do
-    translation = %{:String => :string, :Bool => :boolean, :Integer => :integer, :Float => :float}
-    types
-    |> Enum.map(fn {{:., _, [{:__aliases__, _, [type|_]}, :t]}, _, []} -> type end)
-    |> Enum.map(fn atom -> Map.get(translation, atom, :string) end)
-  end
-  defp to_opt(_) do
-    []
-  end
 end
