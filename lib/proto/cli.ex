@@ -23,4 +23,12 @@ defmodule Firex.Proto.Cli do
     IO.puts "Stopping task #{task_id}"
   end
 
+  @doc """
+  Increments by one
+  """
+  @spec inc(Integer.t) :: String.t
+  def inc(number) do
+    IO.puts "Result #{number + 1}"
+  end
+
 end
