@@ -146,11 +146,14 @@ defmodule Firex do
   def on_def(_env, _kind, _name, _args, _guards, _body) do
   end
 
-  def opt_pair({name, args, _, __}) do
-    switches = args
+  def opt_pair({name, args, _, spec}) do
+    guessed_switches = args
     |> Enum.map(&Firex.arg_name/1)
     |> Enum.map(fn name -> {name, :string} end)
     |> Enum.into(Keyword.new)
+
+    spec_switches = to_opt(spec)
+    switches = Enum.zip(guessed_switches, spec_switches) |> Enum.map(fn {{name, _}, sw} -> {name, sw} end)
     aliases = switches
     |> Enum.map(fn {k, _} -> {
       k
@@ -160,6 +163,7 @@ defmodule Firex do
       }
     end)
     |> Enum.into(Keyword.new)
+    spec |> to_opt()
     %{name => [switches: switches, aliases: aliases]}
   end
   def opt_pair(_) do
@@ -173,6 +177,23 @@ defmodule Firex do
     name
   end
 
-  def main(_args \\ []) do
+  @doc """
+  The following switches types arguments:
+  :boolean - sets the value to true when given (see also the “Negation switches” section below)
+  :count - counts the number of times the switch is given
+  The following switches take one argument:
+
+  :integer - parses the value as an integer
+  :float - parses the value as a float
+  :string - parses the value as a string
+  """
+  defp to_opt([{:spec, {:::, _, [{_name, _line, types}|_]}, _}|_aliases]) do
+    translation = %{:String => :string, :Bool => :boolean, :Integer => :integer, :Float => :float}
+    types
+    |> Enum.map(fn {{:., _, [{:__aliases__, _, [type|_]}, :t]}, _, []} -> type end)
+    |> Enum.map(fn atom -> Map.get(translation, atom, :string) end)
+  end
+  defp to_opt(_) do
+    []
   end
 end
