@@ -81,26 +81,32 @@ defmodule Firex do
         end
       end
 
-      defp help(cm, help_info) do
-        msg = cm |> Enum.map(fn {name, params} ->
-          signature = params
-          |> Keyword.get(:aliases, [])
-          |> Enum.zip(Keyword.get(params, :switches, []))
-          |> Enum.map(fn {{k, v}, {_, type}} -> "-#{k} --#{v} <#{v}:#{type}>" end)
-          |> Enum.join(", ")
+      defp command_help(name, params, help_info) do
+        switches = Keyword.get(params, :switches, [])
+        signature = params
+        |> Keyword.get(:aliases, [])
+        |> Enum.zip(switches)
+        |> Enum.map(fn {{k, v}, {_, type}} -> "-#{k} --#{v} <#{v}:#{type}>" end)
+        |> Enum.join(", ")
 
-          meta = Map.get(help_info, name, {nil, nil})
-          {doc, _} = meta
-          desc = case String.length(signature) do
-            0 -> "no args required"
-            _ -> signature
-          end
-          """
-              #{name}: #{desc}
+        meta = Map.get(help_info, name, {nil, nil})
+        {doc, _} = meta
 
-                  #{doc}
-          """
-        end) |> Enum.join("\n")
+        desc = case String.length(signature) do
+          0 -> "no args required"
+          _ -> signature
+        end
+        """
+            #{name}: #{desc}
+
+                #{doc}
+        """
+      end
+
+      defp help(command_map, help_info) do
+        msg = command_map
+          |> Enum.map(fn {name, params} -> command_help(name, params, help_info) end)
+          |> Enum.join("\n")
 
         IO.puts """
         #{pub_moduledoc}
