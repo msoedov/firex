@@ -85,13 +85,18 @@ defmodule Firex do
         msg = cm |> Enum.map(fn {name, params} ->
           signature = params
           |> Keyword.get(:aliases, [])
-          |> Enum.map(fn {k, v} -> "-#{k} --#{v} <#{v}>"  end)
+          |> Enum.zip(Keyword.get(params, :switches, []))
+          |> Enum.map(fn {{k, v}, {_, type}} -> "-#{k} --#{v} <#{v}:#{type}>" end)
           |> Enum.join(", ")
 
           meta = Map.get(help_info, name, {nil, nil})
           {doc, _} = meta
+          desc = case String.length(signature) do
+            0 -> "no args required"
+            _ -> signature
+          end
           """
-              #{name}: #{signature}
+              #{name}: #{desc}
 
                   #{doc}
           """
@@ -153,7 +158,9 @@ defmodule Firex do
     |> Enum.into(Keyword.new)
 
     spec_switches = to_opt(spec)
-    switches = Enum.zip(guessed_switches, spec_switches) |> Enum.map(fn {{name, _}, sw} -> {name, sw} end)
+    switches = guessed_switches
+    |> Enum.zip(spec_switches)
+    |> Enum.map(fn {{name, _}, sw} -> {name, sw} end)
     aliases = switches
     |> Enum.map(fn {k, _} -> {
       k
@@ -177,7 +184,8 @@ defmodule Firex do
     name
   end
 
-  @doc """
+
+  """
   The following switches types arguments:
   :boolean - sets the value to true when given (see also the “Negation switches” section below)
   :count - counts the number of times the switch is given
