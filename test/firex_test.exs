@@ -18,8 +18,22 @@ defmodule Firex.Simple do
     IO.puts "Task here #{task}"
   end
 
+  @spec should_takes_bool(Bool.t) :: String.t
+  def should_takes_bool(flag) do
+    IO.puts "Flag #{flag}"
+  end
+
+  @spec should_takes_int(Integer.t) :: String.t
+  def should_takes_int(num) do
+    IO.puts "Flag #{num + 1}"
+  end
+
+  def can_have_no_spec(flag) do
+    IO.puts "Flag #{flag}"
+  end
+
   @spec error() :: String.t
-  def error() do
+  def error do
     raise("Error here")
   end
 
@@ -84,5 +98,19 @@ defmodule FirexTest do
   test "it should match to passed params to avaiable definitions" do
     assert Firex.MatchSample.main(["launch", "-m", "hallo", "--path", "pwd", "-f", "1"])
     assert Firex.MatchSample.main(["launch", "-m", "hallo", "--path", "pwd"])
+  end
+
+  test "it should convert bool flag" do
+    assert Firex.Simple.main(["should_takes_bool", "-f", "1"])
+  end
+
+  test "it should convert int arg" do
+    assert Firex.Simple.main(["should_takes_int", "-n", "1"])
+    refute Firex.Simple.main(["should_takes_int", "-n", "1n"])
+  end
+
+  test "it should work without spec" do
+    assert Firex.Simple.main(["can_have_no_spec", "-f", "1"])
+    refute Firex.Simple.main(["can_have_no_spec"])
   end
 end
