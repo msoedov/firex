@@ -58,7 +58,7 @@ defmodule Firex do
           {_, plain, []} when is_list(plain) ->
             [name|fn_args] = plain
             invoke(__MODULE__, name |> String.to_atom, fn_args, state)
-          {_, [_], _} ->
+          {_, _, _} ->
             state
         end
       end

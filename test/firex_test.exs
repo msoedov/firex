@@ -104,6 +104,10 @@ defmodule FirexTest do
     assert Firex.Simple.main(["should_takes_bool", "-f", "1"])
   end
 
+  test "it should grasefully handle extra arguments" do
+    assert Firex.Simple.main(["should_takes_bool", "-f", "1", "2"])
+  end
+
   test "it should convert int arg" do
     assert Firex.Simple.main(["should_takes_int", "-n", "1"])
     refute Firex.Simple.main(["should_takes_int", "-n", "1n"])
