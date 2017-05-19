@@ -21,7 +21,6 @@ defmodule Example do
   @moduledoc """
   Module for my awesome launcher
   """
-
   @doc """
   Launch some awesome thing
   """
@@ -30,7 +29,7 @@ defmodule Example do
     IO.puts "Hallo #{message} at `#{path}`"
   end
   @spec launch(String.t, String.t, Bool.t) :: String.t
-  def launch(message, path, force) when is_binary(message) do
+  def launch(message, path, force) do
     IO.puts "Hallo #{message} at `#{path}` and forced #{force}"
   end
 
@@ -40,6 +39,14 @@ defmodule Example do
   @spec stop(String.t) :: String.t
   def stop(task_id) do
     IO.puts "Stopping task #{task_id}"
+  end
+
+  @doc """
+  Increments by one
+  """
+  @spec inc(Integer.t) :: String.t
+  def inc(number) do
+    IO.puts "Result #{number + 1}"
   end
 
 end
@@ -64,20 +71,24 @@ Generated escript app with MIX_ENV=dev
 ➜ ./app
 Module for my awesome launcher
 
-Usage:
-
-    <command>
-
 Available commands:
 
-    launch: -m --message <message>, -p --path <path>, -f --force <force>
+    launch: -m --message [message:string], -p --path [path:string], -f --force [force:boolean]
 
         Launch some awesome thing
 
 
-    stop: -t --task_id <task_id>
+    stop: -t --task_id [task_id:string]
 
         Stop previous task by id
+
+
+    inc: -n --number [number:integer]
+
+        Increments by one
+
+➜ ./app inc -n 3
+Result 4
 ```
 
 ## Installation
@@ -96,9 +107,9 @@ end
 
 Known issues and opportunity for improvements:
 
-- [ ] Convert `@spec` into `OptionParser` flags
+- [x] Convert `@spec` into `OptionParser` flags
   - Currently only `:string` is used
-- [ ] Proper exit codes
+- [x] Proper exit codes
   - Proper exit code on traceback
 - [ ] Warn when extra arguments passed
 - [ ] Autoregister main module - e.g `escript: [main_module: Example]``
