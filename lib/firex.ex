@@ -25,7 +25,8 @@ defmodule Firex do
         %{exausted: exausted, need_help: need_help, help_fn: help_fn, error_seen?: error_seen?} =
           Enum.reduce(commands, state, &traverse_commands/2)
         help_fn.(need_help)
-        not need_help and not error_seen? |> sys_exit
+        ok? = not need_help and not error_seen?
+        ok? |> sys_exit
       end
 
       defp sys_exit(status) do
@@ -101,7 +102,7 @@ defmodule Firex do
         signature = params
         |> Keyword.get(:aliases, [])
         |> Enum.zip(switches)
-        |> Enum.map(fn {{k, v}, {_, type}} -> "-#{k} --#{v} <#{v}:#{type}>" end)
+        |> Enum.map(fn {{k, v}, {_, type}} -> "-#{k} --#{v} [#{v}:#{type}]" end)
         |> Enum.join(", ")
 
         meta = Map.get(help_info, name, {nil, nil})
@@ -126,11 +127,6 @@ defmodule Firex do
           |> Enum.join("\n")
 
         [:blue, "#{pub_moduledoc}"] |> Bunt.puts
-        # [:blue, "Usage:"] |> Bunt.puts
-        # IO.puts """
-        #
-        #     <command>
-        # """
         [:blue, "Available commands:"] |> Bunt.puts
 
         IO.puts """
