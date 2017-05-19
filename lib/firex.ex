@@ -16,14 +16,16 @@ defmodule Firex do
       def main([]) do
         state = init([])
         %{help_fn: help_fn} = state
-        help_fn.()
+        help_fn.(true)
         false |> sys_exit
       end
       def main(args) do
         state = init(args)
         commands =  what_defined |> Enum.map(&Firex.Options.params_for_option_parser/1)
-        %{exausted: exausted} = Enum.reduce(commands, state, &traverse_commands/2)
-        exausted |> sys_exit
+        %{exausted: exausted, need_help: need_help, help_fn: help_fn, error_seen?: error_seen?} =
+          Enum.reduce(commands, state, &traverse_commands/2)
+        help_fn.(need_help)
+        not need_help and not error_seen? |> sys_exit
       end
 
       defp sys_exit(status) do
@@ -43,7 +45,11 @@ defmodule Firex do
           what_defined
           |> Enum.map(fn {name, _, doc, tspec} -> {name, {doc, tspec}} end)
           |> Enum.into(%{})
-        %{args: args, exausted: false, help_fn: fn -> help(commands_map, help_info) end}
+        %{args: args,
+          exausted: false,
+          error_seen?: false,
+          help_fn: fn need_help? -> help(commands_map, help_info, need_help?) end,
+          need_help: false}
       end
 
       defp traverse_commands(pair, %{args: args, exausted: false, help_fn: help_fn} = state) do
@@ -55,7 +61,15 @@ defmodule Firex do
           {opts, [^cmd_name], _} ->
             fn_args = opts |> Enum.map(fn {k, v} -> v end)
             invoke(__MODULE__, name, fn_args, state)
-          {_, plain, []} when is_list(plain) ->
+          {_, _, [{"-h", nil}]} ->
+            %{state | exausted: true, need_help: true}
+          {[help: true], [], []} ->
+            %{state | exausted: true, need_help: true}
+          {_, ["help"], _} ->
+            %{state | exausted: true, need_help: true}
+          {_, [], []} ->
+            %{state | exausted: true, need_help: true}
+          {[], plain, []} when is_list(plain) ->
             [name|fn_args] = plain
             invoke(__MODULE__, name |> String.to_atom, fn_args, state)
           {_, _, _} ->
@@ -71,13 +85,14 @@ defmodule Firex do
           Kernel.apply(module, fun, fn_args)
           %{state | exausted: true}
         rescue
-          UndefinedFunctionError ->
-            help_fn.()
-            state
+          e in UndefinedFunctionError ->
+            [:red, "Invalid usage: #{module}:#{fun}"] |> Bunt.puts
+            %{state | error_seen?: true, need_help: true}
           e in _ ->
-            %{message: msg} = e
-            [:red, "Error: #{msg}"] |> Bunt.puts
-            state
+            # %{message: msg} = e
+            [:red, "Error: #{module}.#{fun}(#{fn_args})"] |> Bunt.puts
+            # %{state | exausted: true, error_seen?: true}
+            raise(e)
         end
       end
 
@@ -103,18 +118,22 @@ defmodule Firex do
         """
       end
 
-      defp help(command_map, help_info) do
+      defp help(_, _, false) do
+      end
+      defp help(command_map, help_info, true) do
         msg = command_map
           |> Enum.map(fn {name, params} -> command_help(name, params, help_info) end)
           |> Enum.join("\n")
 
+        [:blue, "#{pub_moduledoc}"] |> Bunt.puts
+        # [:blue, "Usage:"] |> Bunt.puts
+        # IO.puts """
+        #
+        #     <command>
+        # """
+        [:blue, "Available commands:"] |> Bunt.puts
+
         IO.puts """
-        #{pub_moduledoc}
-        Usage:
-
-            <command>
-
-        Available commands:
 
         #{msg}
         """
