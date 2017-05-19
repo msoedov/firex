@@ -79,7 +79,7 @@ defmodule FirexTest do
   end
 
   test "it should handle errors" do
-    refute Firex.Simple.main(["error"])
+    assert_raise RuntimeError, fn -> Firex.Simple.main(["error"]) end
   end
 
   test "it should reject empty params" do
@@ -96,7 +96,7 @@ defmodule FirexTest do
   end
 
   test "it should match to passed params to avaiable definitions" do
-    assert Firex.MatchSample.main(["launch", "-m", "hallo", "--path", "pwd", "-f", "1"])
+    assert Firex.MatchSample.main(["launch", "-m", "hallo", "--path", "pwd", "-f"])
     assert Firex.MatchSample.main(["launch", "-m", "hallo", "--path", "pwd"])
   end
 
@@ -111,10 +111,18 @@ defmodule FirexTest do
   test "it should convert int arg" do
     assert Firex.Simple.main(["should_takes_int", "-n", "1"])
     refute Firex.Simple.main(["should_takes_int", "-n", "1n"])
+    # fixme:
+    assert_raise ArithmeticError, fn -> Firex.Simple.main(["should_takes_int", "1"]) end
   end
 
   test "it should work without spec" do
     assert Firex.Simple.main(["can_have_no_spec", "-f", "1"])
     refute Firex.Simple.main(["can_have_no_spec"])
+  end
+
+  test "it should reply on help" do
+    refute Firex.Simple.main(["-h"])
+    refute Firex.Simple.main(["--help"])
+    refute Firex.Simple.main(["help"])
   end
 end
