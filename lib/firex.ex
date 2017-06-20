@@ -21,7 +21,7 @@ defmodule Firex do
       end
       def main(args) do
         state = init(args)
-        commands =  what_defined |> Enum.map(&Firex.Options.params_for_option_parser/1)
+        commands =  what_defined() |> Enum.map(&Firex.Options.params_for_option_parser/1)
         %{exausted: exausted, need_help: need_help, help_fn: help_fn, error_seen?: error_seen?} =
           Enum.reduce(commands, state, &traverse_commands/2)
         help_fn.(need_help)
@@ -38,12 +38,12 @@ defmodule Firex do
       end
 
       defp init(args \\ []) do
-        commands =  what_defined |> Enum.map(&Firex.Options.params_for_option_parser/1)
+        commands =  what_defined() |> Enum.map(&Firex.Options.params_for_option_parser/1)
         commands_map = commands
           |> Enum.map(fn mp -> mp |> Enum.into(Keyword.new) end)
           |> Enum.reduce(Keyword.new, fn (map, acc) -> Keyword.merge(map, acc) end)
         help_info =
-          what_defined
+          what_defined()
           |> Enum.map(fn {name, _, doc, tspec} -> {name, {doc, tspec}} end)
           |> Enum.into(%{})
         %{args: args,
@@ -126,7 +126,7 @@ defmodule Firex do
           |> Enum.map(fn {name, params} -> command_help(name, params, help_info) end)
           |> Enum.join("\n")
 
-        [:blue, "#{pub_moduledoc}"] |> Bunt.puts
+        [:blue, "#{pub_moduledoc()}"] |> Bunt.puts
         [:blue, "Available commands:"] |> Bunt.puts
 
         IO.puts """
