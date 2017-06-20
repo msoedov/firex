@@ -139,10 +139,10 @@ defmodule Firex do
 
   defmacro __before_compile__(_) do
     quote do
-      def what_defined do
+      def what_defined() do
         @commands
       end
-      def pub_moduledoc do
+      def pub_moduledoc() do
         @pub_moduledoc
       end
     end
