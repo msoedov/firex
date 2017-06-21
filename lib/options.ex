@@ -15,7 +15,6 @@ defmodule Firex.Options do
   :float - parses the value as a float
   :string - parses the value as a string
   """
-
   def to_op_types([{:spec, {:::, _, [{_name, _line, types}|_]}, _}|_aliases]) do
     translation = %{:String => :string, :Bool => :boolean, :Integer => :integer, :Float => :float}
     type_trans = fn x ->
@@ -25,14 +24,14 @@ defmodule Firex.Options do
         _ -> nil
       end
     end
-    case types do
-      nil -> []
-      _ -> types
-            |> Enum.map(type_trans)
-            |> Enum.map(fn atom -> Map.get(translation, atom, :string) end)
+    if types do
+      types
+      |> Enum.map(type_trans)
+      |> Enum.map(fn atom -> Map.get(translation, atom, :string) end)
+    else
+      []
     end
   end
-
   def to_op_types(_) do
     []
   end
