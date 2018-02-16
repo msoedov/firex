@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/msoedov/firex.svg?branch=master)](https://travis-ci.org/msoedov/firex)
 [![Hex Version](https://img.shields.io/hexpm/v/firex.svg)](https://hex.pm/packages/firex)
+[![Open Source Helpers](https://www.codetriage.com/msoedov/firex/badges/users.svg)](https://www.codetriage.com/msoedov/firex)
 
 Firex is a library for automatically generating command line interfaces (CLIs) from an elixir module
 
